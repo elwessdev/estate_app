@@ -97,10 +97,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: const Text('Profile'),
         actions: [
           if (_isEditing)
-            IconButton(
-              icon: const Icon(Icons.check),
-              onPressed: _updateProfile,
-            )
+            IconButton(icon: const Icon(Icons.check), onPressed: _updateProfile)
           else
             IconButton(
               icon: const Icon(Icons.edit),
@@ -215,8 +212,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     title: const Text('My Properties'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () async {
-                      final propertyProvider =
-                          Provider.of<PropertyProvider>(context, listen: false);
+                      final propertyProvider = Provider.of<PropertyProvider>(
+                        context,
+                        listen: false,
+                      );
                       await propertyProvider.loadUserProperties(user.id!);
                       if (!mounted) return;
                       Navigator.of(context).push(
@@ -251,9 +250,7 @@ class MyPropertiesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Properties'),
-      ),
+      appBar: AppBar(title: const Text('My Properties')),
       body: Consumer<PropertyProvider>(
         builder: (context, propertyProvider, child) {
           if (propertyProvider.isLoading) {
@@ -261,9 +258,7 @@ class MyPropertiesScreen extends StatelessWidget {
           }
 
           if (propertyProvider.properties.isEmpty) {
-            return const Center(
-              child: Text('No properties found'),
-            );
+            return const Center(child: Text('No properties found'));
           }
 
           return ListView.builder(
@@ -271,46 +266,239 @@ class MyPropertiesScreen extends StatelessWidget {
             itemCount: propertyProvider.properties.length,
             itemBuilder: (context, index) {
               final property = propertyProvider.properties[index];
+              final photos = property.getPhotoList();
+
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                child: ListTile(
-                  title: Text(property.title),
-                  subtitle: Text('\$${property.price.toStringAsFixed(2)}'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () async {
-                          final confirmed = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text('Delete Property'),
-                              content: const Text(
-                                  'Are you sure you want to delete this property?'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text('Cancel'),
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                elevation: 4,
+                shadowColor: Colors.black.withOpacity(0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(16),
+                          ),
+                          child: photos.isNotEmpty
+                              ? Image.file(
+                                  File(photos.first),
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 200,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.grey[300]!,
+                                            Colors.grey[200]!,
+                                          ],
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.home_work_rounded,
+                                        size: 80,
+                                        color: Colors.grey,
+                                      ),
+                                    );
+                                  },
+                                )
+                              : Container(
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.grey[300]!,
+                                        Colors.grey[200]!,
+                                      ],
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.home_work_rounded,
+                                    size: 80,
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  child: const Text('Delete'),
+                        ),
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: property.type == 'rent'
+                                  ? const Color(0xFF03A9F4)
+                                  : const Color(0xFFFF9800),
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
                                 ),
                               ],
                             ),
-                          );
+                            child: Text(
+                              property.type.toUpperCase(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            property.title,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF212121),
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            property.description,
+                            style: const TextStyle(
+                              color: Color(0xFF757575),
+                              fontSize: 14,
+                              height: 1.4,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF4CAF50,
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '\$${property.price.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF4CAF50),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.location_on_rounded,
+                                      size: 16,
+                                      color: Color(0xFF757575),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '${property.latitude.toStringAsFixed(2)}, ${property.longitude.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                        color: Color(0xFF757575),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      title: const Text('Delete Property'),
+                                      content: const Text(
+                                        'Are you sure you want to delete this property? This action cannot be undone.',
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () =>
+                                              Navigator.of(context).pop(true),
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            foregroundColor: Colors.white,
+                                          ),
+                                          child: const Text('Delete'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
 
-                          if (confirmed == true) {
-                            await propertyProvider
-                                .deleteProperty(property.id!);
-                          }
-                        },
+                                  if (confirmed == true) {
+                                    await propertyProvider.deleteProperty(
+                                      property.id!,
+                                    );
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.delete_outline,
+                                  size: 20,
+                                ),
+                                label: const Text('Delete'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.red,
+                                  side: const BorderSide(color: Colors.red),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               );
             },

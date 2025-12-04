@@ -8,6 +8,7 @@ import '../models/property.dart';
 import 'property_detail_screen.dart';
 import 'add_property_screen.dart';
 import 'profile_screen.dart';
+import 'favorites_screen.dart';
 import 'chat_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -39,10 +40,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadData() async {
-    final propertyProvider =
-        Provider.of<PropertyProvider>(context, listen: false);
-    final favoriteProvider =
-        Provider.of<FavoriteProvider>(context, listen: false);
+    final propertyProvider = Provider.of<PropertyProvider>(
+      context,
+      listen: false,
+    );
+    final favoriteProvider = Provider.of<FavoriteProvider>(
+      context,
+      listen: false,
+    );
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
     await propertyProvider.loadProperties();
@@ -113,8 +118,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       _selectedType = null;
                       tempType = null;
                     });
-                    final propertyProvider =
-                        Provider.of<PropertyProvider>(context, listen: false);
+                    final propertyProvider = Provider.of<PropertyProvider>(
+                      context,
+                      listen: false,
+                    );
                     propertyProvider.clearFilters();
                     Navigator.of(context).pop();
                   },
@@ -125,8 +132,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     this.setState(() {
                       _selectedType = tempType;
                     });
-                    final propertyProvider =
-                        Provider.of<PropertyProvider>(context, listen: false);
+                    final propertyProvider = Provider.of<PropertyProvider>(
+                      context,
+                      listen: false,
+                    );
                     propertyProvider.setFilters(
                       type: tempType,
                       minPrice: _minPriceController.text.isNotEmpty
@@ -152,6 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final pages = [
       _buildHomePage(),
+      const FavoritesScreen(),
+      const MyPropertiesScreen(),
       const ChatListScreen(),
       const ProfileScreen(),
     ];
@@ -160,33 +171,31 @@ class _HomeScreenState extends State<HomeScreen> {
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.fixed,
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
           });
         },
         items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.favorite_border),
+            label: 'Favorites',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.message),
-            label: 'Messages',
+            icon: Icon(Icons.home_work),
+            label: 'My Props',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Messages'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton(
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => const AddPropertyScreen(),
-                  ),
+                  MaterialPageRoute(builder: (_) => const AddPropertyScreen()),
                 );
               },
               child: const Icon(Icons.add),
@@ -212,7 +221,10 @@ class _HomeScreenState extends State<HomeScreen> {
         shadowColor: Colors.black.withOpacity(0.1),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_list_rounded, color: Color(0xFF4CAF50)),
+            icon: const Icon(
+              Icons.filter_list_rounded,
+              color: Color(0xFF4CAF50),
+            ),
             onPressed: _showFilterDialog,
             tooltip: 'Filter Properties',
           ),
@@ -227,9 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }
 
             if (propertyProvider.properties.isEmpty) {
-              return const Center(
-                child: Text('No properties available'),
-              );
+              return const Center(child: Text('No properties available'));
             }
 
             return ListView.builder(
@@ -263,9 +273,7 @@ class _PropertyCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       elevation: 4,
       shadowColor: Colors.black.withOpacity(0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () {
           Navigator.of(context).push(
@@ -316,10 +324,7 @@ class _PropertyCard extends StatelessWidget {
                           height: 220,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: [
-                                Colors.grey[300]!,
-                                Colors.grey[200]!,
-                              ],
+                              colors: [Colors.grey[300]!, Colors.grey[200]!],
                             ),
                           ),
                           child: const Icon(
@@ -452,8 +457,11 @@ class _PropertyCard extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.location_on_rounded,
-                                size: 16, color: Color(0xFF757575)),
+                            const Icon(
+                              Icons.location_on_rounded,
+                              size: 16,
+                              color: Color(0xFF757575),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${property.latitude.toStringAsFixed(2)}, ${property.longitude.toStringAsFixed(2)}',
