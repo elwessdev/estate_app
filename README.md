@@ -45,6 +45,13 @@ The app includes:
 - Real-time messaging interface
 - Favorites management
 
+C4 modal screenshots:
+![C4 Modal - Code](assets/images/C4-SystemContext.png)  
+![C4 Modal - Code](assets/images/C4-Code.jpg)  
+![C4 Modal - Component](assets/images/C4-Component.jpg)  
+
+(Place the images under `assets/images/` or adjust paths; if used in Flutter, add them to `pubspec.yaml` under `flutter.assets:`)
+
 ## 🛠️ Technology Stack
 
 - **Framework**: Flutter 3.9.2+
